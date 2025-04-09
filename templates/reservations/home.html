@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}CineApp - Reservas de Cine{% endblock %}
+
+{% block content %}
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-4 fw-bold">Bienvenido a CineApp</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">
+            La manera más fácil de reservar tus entradas para las mejores películas en cartelera.
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{% url 'movie_list' %}" class="btn btn-primary btn-lg px-4 gap-3">Ver Películas</a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4">Registrarse</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<h2 class="mb-4">En Cartelera</h2>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for movie in movies %}
+    <div class="col">
+        <div class="card h-100 movie-card">
+            {% if movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top movie-poster" alt="{{ movie.title }}">
+            {% else %}
+            <div class="bg-light d-flex justify-content-center align-items-center movie-poster">
+                <i class="fas fa-film fa-4x text-secondary"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text">{{ movie.overview|truncatechars:100 }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'movie_detail' tmdb_id=movie.id %}" class="btn btn-sm btn-primary">Ver detalles</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            No hay películas disponibles en este momento.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'movie_list' %}" class="btn btn-outline-primary">Ver todas las películas</a>
+</div>
+{% endblock %}

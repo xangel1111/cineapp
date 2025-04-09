@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Reserva{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Confirmar Reserva</h4>
+            </div>
+            <div class="card-body">
+                <h5>{{ showtime.movie.title }}</h5>
+                <p><strong>Sala:</strong> {{ showtime.theater.name }}</p>
+                <p><strong>Fecha y Hora:</strong> {{ showtime.start_time|date:"d/m/Y H:i" }}</p>
+                <p><strong>Precio por asiento:</strong> ${{ showtime.price }}</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Por favor corrige los errores a continuación.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.num_seats.id_for_label }}" class="form-label">Número de asientos</label>
+                        {{ form.num_seats }}
+                        {% if form.num_seats.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.num_seats.errors }}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">Máximo {{ showtime.seats_available }} asientos disponibles.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Precio total:</label>
+                        <div class="fs-4" id="total-price">$0.00</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Confirmar Reserva</button>
+                        <a href="{% url 'showtime_detail' showtime_id=showtime.id %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const numSeatsInput = document.getElementById('id_num_seats');
+        const totalPriceElement = document.getElementById('total-price');
+        const pricePerSeat = {{ showtime.price }};
+        
+        if (numSeatsInput && totalPriceElement) {
+            numSeatsInput.addEventListener('input', function() {
+                const seats = parseInt(this.value) || 0;
+                const totalPrice = (seats * pricePerSeat).toFixed(2);
+                totalPriceElement.textContent = `$${totalPrice}`;
+            });
+            
+            // Inicializar
+            if (!numSeatsInput.value) {
+                numSeatsInput.value = 1;
+            }
+            const seats = parseInt(numSeatsInput.value) || 0;
+            totalPriceElement.textContent = `$${(seats * pricePerSeat).toFixed(2)}`;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Reservar - {{ showtime.movie.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Detalles de la función</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if showtime.movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ showtime.movie.poster_path }}" class="img-fluid rounded" alt="{{ showtime.movie.title }}">
+                        {% else %}
+                        <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 200px;">
+                            <i class="fas fa-film fa-4x text-secondary"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h2>{{ showtime.movie.title }}</h2>
+                        <p><strong>Sala:</strong> {{ showtime.theater.name }}</p>
+                        <p><strong>Fecha y Hora:</strong> {{ showtime.start_time|date:"d/m/Y H:i" }}</p>
+                        <p><strong>Precio por asiento:</strong> ${{ showtime.price }}</p>
+                        <p><strong>Asientos disponibles:</strong> {{ showtime.seats_available }} / {{ showtime.theater.capacity }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h4>Realizar Reserva</h4>
+                {% if user.is_authenticated %}
+                    {% if showtime.seats_available > 0 %}
+                    <form method="post" action="{% url 'create_reservation' showtime_id=showtime.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_num_seats" class="form-label">Número de asientos</label>
+                            <input type="number" name="num_seats" min="1" max="{{ showtime.seats_available }}" class="form-control" id="id_num_seats" required>
+                            <div class="form-text">Máximo {{ showtime.seats_available }} asientos disponibles.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Precio total:</label>
+                            <div class="fs-4" id="total-price">$0.00</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Confirmar reserva</button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        Lo sentimos, no hay asientos disponibles para esta función.
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="alert alert-warning">
+                    Debes <a href="{% url 'login' %}?next={{ request.path }}">iniciar sesión</a> para realizar una reserva.
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'movie_detail' tmdb_id=showtime.movie.tmdb_id %}" class="btn btn-secondary">Volver a detalles de la película</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const numSeatsInput = document.getElementById('id_num_seats');
+        const totalPriceElement = document.getElementById('total-price');
+        const pricePerSeat = {{ showtime.price }};
+        
+        if (numSeatsInput && totalPriceElement) {
+            numSeatsInput.addEventListener('input', function() {
+                const seats = parseInt(this.value) || 0;
+                const totalPrice = (seats * pricePerSeat).toFixed(2);
+                totalPriceElement.textContent = `$${totalPrice}`;
+            });
+            
+            // Inicializar
+            numSeatsInput.value = 1;
+            totalPriceElement.textContent = `$${pricePerSeat.toFixed(2)}`;
+        }
+    });
+</script>
+{% endblock %}

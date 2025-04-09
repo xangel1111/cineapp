@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Reservas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Mis Reservas</h1>
+
+{% if reservations %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Película</th>
+                <th>Fecha y Hora</th>
+                <th>Asientos</th>
+                <th>Precio Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.showtime.movie.title }}</td>
+                <td>{{ reservation.showtime.start_time|date:"d/m/Y H:i" }}</td>
+                <td>{{ reservation.num_seats }}</td>
+                <td>${{ reservation.total_price }}</td>
+                <td>
+                    {% if reservation.status == 'PENDING' %}
+                    <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% elif reservation.status == 'CONFIRMED' %}
+                    <span class="badge bg-success">Confirmada</span>
+                    {% elif reservation.status == 'CANCELLED' %}
+                    <span class="badge bg-danger">Cancelada</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'reservation_detail' reservation_id=reservation.id %}" class="btn btn-sm btn-info">Ver</a>
+                    {% if reservation.status == 'PENDING' %}
+                    <a href="{% url 'cancel_reservation' reservation_id=reservation.id %}" class="btn btn-sm btn-danger">Cancelar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No tienes reservas actualmente. <a href="{% url 'movie_list' %}">Ver películas disponibles</a>.
+</div>
+{% endif %}
+{% endblock %}

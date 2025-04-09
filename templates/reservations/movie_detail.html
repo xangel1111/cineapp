@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Información de la película -->
+    <div class="col-md-4">
+        {% if movie.poster_path %}
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="img-fluid rounded" alt="{{ movie.title }}">
+        {% else %}
+        <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 450px;">
+            <i class="fas fa-film fa-5x text-secondary"></i>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1>{{ movie.title }}</h1>
+        <p class="text-muted">Fecha de estreno: {{ movie.release_date }}</p>
+        
+        <h4 class="mt-4">Sinopsis</h4>
+        <p>{{ movie.overview }}</p>
+        
+        <h4 class="mt-4">Horarios Disponibles</h4>
+        {% if showtimes %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sala</th>
+                        <th>Fecha y Hora</th>
+                        <th>Precio</th>
+                        <th>Asientos Disponibles</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for showtime in showtimes %}
+                    <tr>
+                        <td>{{ showtime.theater.name }}</td>
+                        <td>{{ showtime.start_time|date:"d/m/Y H:i" }}</td>
+                        <td>${{ showtime.price }}</td>
+                        <td>{{ showtime.seats_available }} / {{ showtime.theater.capacity }}</td>
+                        <td>
+                            {% if showtime.seats_available > 0 %}
+                            <a href="{% url 'showtime_detail' showtime_id=showtime.id %}" class="btn btn-sm btn-primary">Reservar</a>
+                            {% else %}
+                            <span class="badge bg-danger">Agotado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No hay horarios disponibles para esta película en este momento.
+        </div>
+        {% endif %}
+        
+        <div class="mt-4">
+            <a href="{% url 'movie_list' %}" class="btn btn-secondary">Volver a la lista</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

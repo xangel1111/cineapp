@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Reserva{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Cancelar Reserva</h4>
+            </div>
+            <div class="card-body">
+                <h5>¿Estás seguro de que deseas cancelar esta reserva?</h5>
+                <p><strong>Película:</strong> {{ reservation.showtime.movie.title }}</p>
+                <p><strong>Fecha y Hora:</strong> {{ reservation.showtime.start_time|date:"d/m/Y H:i" }}</p>
+                <p><strong>Número de Asientos:</strong> {{ reservation.num_seats }}</p>
+                <p><strong>Precio Total:</strong> ${{ reservation.total_price }}</p>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Esta acción no se puede deshacer.
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Sí, Cancelar Reserva</button>
+                        <a href="{% url 'reservation_detail' reservation_id=reservation.id %}" class="btn btn-outline-secondary">No, Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

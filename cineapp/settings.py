@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'reservations',
+    'reservations.apps.ReservationsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -128,7 +128,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 
-TMDB_API_KEY = 'tu_api_key_aqui'  # Necesitarás registrarte en TMDB para obtener una API key
+TMDB_API_KEY = '7e88a4e21ff664ed2d3ae3488e20e59e'  # Necesitarás registrarte en TMDB para obtener una API key
 TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Películas en Cartelera{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Películas en Cartelera</h1>
+
+<!-- Formulario de búsqueda -->
+<div class="row mb-4">
+    <div class="col-md-6 offset-md-3">
+        <form method="GET" action="{% url 'movie_list' %}" class="d-flex">
+            <input type="text" name="query" value="{{ request.GET.query }}" class="form-control me-2" placeholder="Buscar películas...">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de películas -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    {% for movie in page_obj %}
+    <div class="col">
+        <div class="card h-100 movie-card">
+            {% if movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top movie-poster" alt="{{ movie.title }}">
+            {% else %}
+            <div class="bg-light d-flex justify-content-center align-items-center movie-poster">
+                <i class="fas fa-film fa-4x text-secondary"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text small">{{ movie.overview|truncatechars:100 }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'movie_detail' tmdb_id=movie.id %}" class="btn btn-sm btn-primary">Ver detalles</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            No se encontraron películas. Intenta con otra búsqueda.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginación -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Navegación de páginas" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+        </li>
+        {% endif %}
+        
+        {% for i in page_obj.paginator.page_range %}
+            {% if i == page_obj.number %}
+            <li class="page-item active">
+                <span class="page-link">{{ i }}</span>
+            </li>
+            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">{{ i }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">Siguiente</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Siguiente</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Reserva{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Detalles de la Reserva</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        {% if reservation.showtime.movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ reservation.showtime.movie.poster_path }}" class="img-fluid rounded" alt="{{ reservation.showtime.movie.title }}">
+                        {% else %}
+                        <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 200px;">
+                            <i class="fas fa-film fa-4x text-secondary"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h2>{{ reservation.showtime.movie.title }}</h2>
+                        <p><strong>Código de Referencia:</strong> {{ reservation.reference_code }}</p>
+                        <p><strong>Estado:</strong> 
+                            {% if reservation.status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% elif reservation.status == 'CONFIRMED' %}
+                            <span class="badge bg-success">Confirmada</span>
+                            {% elif reservation.status == 'CANCELLED' %}
+                            <span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Sala:</strong> {{ reservation.showtime.theater.name }}</p>
+                        <p><strong>Fecha y Hora:</strong> {{ reservation.showtime.start_time|date:"d/m/Y H:i" }}</p>
+                        <p><strong>Número de Asientos:</strong> {{ reservation.num_seats }}</p>
+                        <p><strong>Precio Total:</strong> ${{ reservation.total_price }}</p>
+                        <p><strong>Fecha de Reserva:</strong> {{ reservation.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                {% if reservation.status == 'PENDING' %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'cancel_reservation' reservation_id=reservation.id %}" class="btn btn-danger">Cancelar Reserva</a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'user_reservations' %}" class="btn btn-secondary">Volver a Mis Reservas</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
